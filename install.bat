@@ -1,4 +1,5 @@
 @echo off
+cd /d "%~dp0"
 color 0B
 title ComfyUI ROCm Native Setup
 echo ===============================================================================
@@ -27,31 +28,35 @@ echo.
 pause
 
 echo.
-echo [1/5] Creating Python virtual environment...
+echo [1/6] Creating Python virtual environment...
 py -3.12 -m venv venv
 call venv\Scripts\activate
 python -m pip install --upgrade pip
 
 echo.
-echo [2/5] Installing ROCm ^& PyTorch (from local files)...
+echo [2/6] Installing ComfyUI requirements...
+pip install -r requirements.txt
+
+echo.
+echo [3/6] Installing ROCm ^& PyTorch (from local files)...
 cd rocm
 pip install rocm-7.12.0.dev0.tar.gz rocm_sdk_core-7.12.0.dev0-py3-none-win_amd64.whl rocm_sdk_devel-7.12.0.dev0-py3-none-win_amd64.whl rocm_sdk_libraries_gfx103x_all-7.12.0.dev0-py3-none-win_amd64.whl
 pip install torch-2.10.0+devrocm7.12.0.dev0-cp312-cp312-win_amd64.whl torchaudio-2.10.0+devrocm7.12.0.dev0-cp312-cp312-win_amd64.whl torchvision-0.25.0+devrocm7.12.0.dev0-cp312-cp312-win_amd64.whl
 cd ..
 
 echo.
-echo [3/5] Installing dependencies ^& bitsandbytes...
+echo [4/6] Installing dependencies ^& bitsandbytes...
 pip install triton-windows==3.6.0.post25 sageattention==1.0.6
 pip install https://github.com/0xDELUXA/bitsandbytes_win_rocm/releases/download/v0.49.2.dev0-py312-rocm7.12/bitsandbytes-0.49.2.dev0-cp312-cp312-win_amd64.whl
 
 echo.
-echo [4/5] Patching SageAttention for RDNA 2...
+echo [5/6] Patching SageAttention for RDNA 2...
 curl -s -o venv\Lib\site-packages\sageattention\attn_qk_int8_per_block.py https://raw.githubusercontent.com/NirussVn0/ComfyUI-AMD-RDNA2/refs/heads/master/comfy/customzluda/sa/attn_qk_int8_per_block.py
 curl -s -o venv\Lib\site-packages\sageattention\attn_qk_int8_per_block_causal.py https://raw.githubusercontent.com/NirussVn0/ComfyUI-AMD-RDNA2/refs/heads/master/comfy/customzluda/sa/attn_qk_int8_per_block_causal.py
 curl -s -o venv\Lib\site-packages\sageattention\quant_per_block.py https://raw.githubusercontent.com/NirussVn0/ComfyUI-AMD-RDNA2/refs/heads/master/comfy/customzluda/sa/quant_per_block.py
 
 echo.
-echo [5/5] Creating dummy comfy_aimdo bypass modules via Python...
+echo [6/6] Creating dummy comfy_aimdo bypass modules via Python...
 echo import os > create_dummy.py
 echo target_dir = r"venv\Lib\site-packages\comfy_aimdo" >> create_dummy.py
 echo os.makedirs(target_dir, exist_ok=True) >> create_dummy.py
