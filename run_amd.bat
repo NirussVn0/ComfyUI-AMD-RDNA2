@@ -24,7 +24,7 @@ echo ===========================================================================
 echo.
 
 if not exist venv\Scripts\activate.bat (
-    echo [ERROR] Python Virtual Environment (venv) not found!
+    echo [ERROR] Python Virtual Environment venv not found!
     echo Please run install.bat first to set up the environment.
     echo.
     pause
