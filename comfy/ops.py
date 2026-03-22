@@ -30,7 +30,7 @@ import comfy_aimdo.model_vbar
 import comfy_aimdo.torch
 
 def run_every_op():
-    if torch.compiler.is_compiling():
+    if comfy.model_management.torch_version_numeric >= (2, 3) and torch.compiler.is_compiling():
         return
 
     comfy.model_management.throw_exception_if_processing_interrupted()
