@@ -58,17 +58,38 @@ curl -s -o venv\Lib\site-packages\sageattention\quant_per_block.py https://raw.g
 echo.
 echo [6/6] Creating dummy comfy_aimdo bypass modules via Python...
 echo import os > create_dummy.py
+echo import textwrap >> create_dummy.py
 echo target_dir = r"venv\Lib\site-packages\comfy_aimdo" >> create_dummy.py
 echo os.makedirs(target_dir, exist_ok=True) >> create_dummy.py
 echo with open(os.path.join(target_dir, '__init__.py'), 'w', encoding='utf-8') as f: pass >> create_dummy.py
-echo modules = ['control', 'model_vbar', 'host_buffer', 'torch', 'utils', 'model', 'quant', 'cuda', 'memory', 'offload', 'abc', 'base', 'core', 'common', 'kernel', 'cache', 'tensor', 'runtime', 'device', 'stream', 'allocator', 'pinned_memory', 'ops', 'taesd', 'cpu', 'hip', 'rocm', 'attention', 'flash', 'linear', 'conv', 'norm'] >> create_dummy.py
+echo modules = ['model_vbar', 'host_buffer', 'torch', 'utils', 'model', 'quant', 'cuda', 'memory', 'offload', 'abc', 'base', 'core', 'common', 'kernel', 'cache', 'tensor', 'runtime', 'device', 'stream', 'allocator', 'pinned_memory', 'ops', 'taesd', 'cpu', 'hip', 'rocm', 'attention', 'flash', 'linear', 'conv', 'norm'] >> create_dummy.py
 echo for mod in modules: >> create_dummy.py
-echo     file_path = os.path.join(target_dir, f'{mod}.py') >> create_dummy.py
-echo     with open(file_path, 'w', encoding='utf-8') as f: >> create_dummy.py
-echo         if mod == 'control': >> create_dummy.py
-echo             f.write("def init(): pass\ndef init_device(device): return False\ndef set_log_debug(): pass\ndef set_log_critical(): pass\ndef set_log_error(): pass\ndef set_log_warning(): pass\ndef set_log_info(): pass\n") >> create_dummy.py
-echo         else: >> create_dummy.py
-echo             f.write("# Dummy module for AMD\npass\n") >> create_dummy.py
+echo     with open(os.path.join(target_dir, f'{mod}.py'), 'w', encoding='utf-8') as f: f.write("# Dummy module for AMD RDNA2 bypass\npass\n") >> create_dummy.py
+echo control_code = textwrap.dedent(""" >> create_dummy.py
+echo     def init(): pass >> create_dummy.py
+echo     def init_device(device): return False >> create_dummy.py
+echo     def set_log_debug(): pass >> create_dummy.py
+echo     def set_log_critical(): pass >> create_dummy.py
+echo     def set_log_error(): pass >> create_dummy.py
+echo     def set_log_warning(): pass >> create_dummy.py
+echo     def set_log_info(): pass >> create_dummy.py
+echo     def get_total_vram_usage(*args, **kwargs): >> create_dummy.py
+echo         try: >> create_dummy.py
+echo             import torch >> create_dummy.py
+echo             if torch.cuda.is_available(): return torch.cuda.memory_allocated() >> create_dummy.py
+echo         except: pass >> create_dummy.py
+echo         return 0 >> create_dummy.py
+echo     def get_free_vram(*args, **kwargs): >> create_dummy.py
+echo         try: >> create_dummy.py
+echo             import torch >> create_dummy.py
+echo             if torch.cuda.is_available(): return torch.cuda.mem_get_info()[0] >> create_dummy.py
+echo         except: pass >> create_dummy.py
+echo         return 16 * 1024**3 >> create_dummy.py
+echo     def __getattr__(name): >> create_dummy.py
+echo         def dummy(*args, **kwargs): return 0 >> create_dummy.py
+echo         return dummy >> create_dummy.py
+echo """).lstrip() >> create_dummy.py
+echo with open(os.path.join(target_dir, 'control.py'), 'w', encoding='utf-8') as f: f.write(control_code) >> create_dummy.py
 python create_dummy.py
 del create_dummy.py
 

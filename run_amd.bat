@@ -39,7 +39,7 @@ set PYTORCH_HIP_ALLOC_CONF=expandable_segments:True
 
 echo.
 echo [INFO] Launching ComfyUI...
-python main.py --windows-standalone-build --use-pytorch-cross-attention --disable-smart-memory
+python main.py --windows-standalone-build --use-pytorch-cross-attention --fp16-vae
 
 echo.
 echo [INFO] ComfyUI has stopped.
